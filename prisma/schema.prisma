@@ -1,0 +1,133 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+model users {
+  id Int @id @default(autoincrement())
+  name String
+  password String
+  customers customers[]
+  levels levels[]
+  matches matches[]
+  levelHorses levelHorses[]
+  bets bets[]
+}
+model matches{
+  id Int @id @default(autoincrement())
+  name String
+  levelsCount Int @default(0)
+  discount String @default("0.80")
+  madeBy Int
+  user users @relation(fields: [madeBy] , references: [id])
+}
+enum matchStatus {
+  PENDING
+  STARTED
+  ENDED
+}
+model levels {
+  id Int @id @default(autoincrement())
+  matchId Int
+  name String
+  status  matchStatus @default(PENDING)
+  levelHorses levelHorses[]
+  madeBy Int
+  user users @relation(fields: [madeBy] , references: [id])
+}
+model horses{
+  id Int @id @default(autoincrement())
+  name String
+  initial_price String?
+  final_price String?
+  levelHorses levelHorses[]
+  firstForcasts  forcastCard[] @relation("FirstHorseRelation")
+  secondForcasts forcastCard[] @relation("SecondHorseRelation")
+  firstWinners  winners[] @relation("FirstHorseRelation")
+  secondwinners winners[] @relation("SecondHorseRelation")
+}
+model levelHorses{
+  id Int @id @default(autoincrement())
+  horseId Int
+  level_id Int
+  level levels @relation(fields: [level_id], references: [id])
+  horse horses @relation(fields: [horseId] , references: [id])
+  madeBy Int
+  user users @relation(fields: [madeBy] , references: [id])
+}
+
+model bets{
+  id Int @id @default(autoincrement())
+  customerId Int
+  isOne Boolean
+  isTow Boolean
+  isThree Boolean
+  isFoure Boolean
+  isForcast Boolean @default(false)
+  customer customers @relation(fields: [customerId] , references: [id])
+  madeBy Int
+  matchId Int @default(0)
+  user users @relation(fields: [madeBy] , references: [id])
+  card  card[]
+  forcastCard forcastCard[]
+  combo combo[]
+}
+model customers{
+  id Int @id @default(autoincrement())
+  name String
+  bets bets[]
+  madeBy Int
+  user users @relation(fields: [madeBy] , references: [id])
+
+}
+model card{
+   id Int @id @default(autoincrement())
+   betId Int
+   ammount String
+   bet bets @relation(fields: [betId]  , references: [id])
+   combo combo[]
+
+}
+model winners {
+  id Int @id @default(autoincrement())
+  levelId Int
+  firstHorse Int
+  secondHorse Int
+  first  horses @relation("FirstHorseRelation", fields: [firstHorse], references: [id])
+  second horses @relation("SecondHorseRelation", fields: [secondHorse], references: [id])
+}
+model forcastCard {
+   id Int @id @default(autoincrement())
+   betId Int
+   firstHorse Int
+   secondHorse Int
+   ammount Int
+   bet bets @relation(fields: [betId] , references: [id])
+   first  horses @relation("FirstHorseRelation", fields: [firstHorse], references: [id])
+   second horses @relation("SecondHorseRelation", fields: [secondHorse], references: [id])
+}
+model cash {
+   id Int @id @default(autoincrement())
+   madeBy Int
+   ammount String
+   levelId Int
+}
+
+model combo {
+  id Int @id @default(autoincrement())
+  cardId Int
+  betId Int
+  combo String
+  bet bets @relation(fields: [betId] , references: [id])
+  card card @relation(fields: [cardId], references: [id])
+
+}
