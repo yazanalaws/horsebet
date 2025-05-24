@@ -14,8 +14,11 @@ export async function POST(req: NextRequest) {
         id : "desc"
        }
     })
+    if(!match){
+       return NextResponse.json({ success: false });
+    }
     const levels = await prisma.levels.findMany({
-        where: { matchId },
+        where: { matchId : match.id },
         include: {
             levelHorses: {
                 include: {
@@ -27,7 +30,7 @@ export async function POST(req: NextRequest) {
     });
 
     const bets = await prisma.bets.findMany({
-        where: { matchId },
+        where: { matchId : match.id },
         include: {
             card: {
                 include: {
