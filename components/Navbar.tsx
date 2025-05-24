@@ -35,6 +35,11 @@ export default function Navbar() {
      >
        الحسابات
      </Link>
+     <Link
+       href={'/settings'}
+     >
+       اعدادات
+     </Link>
 
     </div>
   )

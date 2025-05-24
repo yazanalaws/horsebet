@@ -9,10 +9,10 @@ interface ComboEntry {
 export async function POST(req: NextRequest) {
     const data = await req.json();
     const { matchId } = data;
-    const match = await prisma.matches.findUnique({
-        where : {
-            id  : matchId
-        }
+    const match = await prisma.matches.findFirst({
+       orderBy : {
+        id : "desc"
+       }
     })
     const levels = await prisma.levels.findMany({
         where: { matchId },
