@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { use, useEffect, useState } from "react";
 
 interface PageProps {
@@ -11,8 +11,10 @@ interface data {
   netTotal: number;
   winTotal: number;
   matchName: string;
+  forcastWins: number;
+  forcastTotal: number;
 }
-import { Suspense } from 'react'
+import { Suspense } from "react";
 export default function Page({ params }: PageProps) {
   const { id } = use(params);
   const [cLientData, setClientData] = useState<data | null>(null);
@@ -21,7 +23,7 @@ export default function Page({ params }: PageProps) {
   const [backPrecent, setBackPercent] = useState("");
   const [profits, setProfits] = useState("0");
   const [originalProfits, setOriginalProfits] = useState(0);
-  const [lose , setLose] = useState('')
+  const [lose, setLose] = useState("");
 
   useEffect(() => {
     const fetchCash = async () => {
@@ -61,67 +63,55 @@ export default function Page({ params }: PageProps) {
     const backAmount = (originalProfits * backPercentValue) / 100;
     setBack(backAmount.toFixed(1));
 
-
     const newProfits = originalProfits - backAmount - tipValue;
     setProfits(newProfits > 0 ? newProfits.toFixed(1) : "0");
   }, [backPrecent, tip, originalProfits]);
 
   return (
     <Suspense>
-    <div className="w-[95%] m-auto h-screen mt-[60px] text-white text-lg" dir="rtl">
-      {cLientData && (
-        <div className="flex flex-col gap-4">
-          <h1 className="font-bold text-lg">
-            حسابات {cLientData.clientName} {cLientData.matchName}
-          </h1>
+      <div
+        className="w-[95%] m-auto min-h-screen h-auto mb-[60px] mt-[60px] text-white text-lg"
+        dir="rtl"
+      >
+        {cLientData && (
+          <div className="flex flex-col gap-4">
+            <h1 className="font-bold text-lg">
+              حسابات {cLientData.clientName} {cLientData.matchName}
+            </h1>
 
-          <div className="flex items-center gap-4">
-            <p className="font-bold w-[200px]">مجموع اللعب:</p>
-            <input
-              type="text"
-              disabled
-              readOnly
-              value={cLientData.totalAmmount}
-              className="p-2 rounded text-black bg-white"
-            />
-          </div>
-
-          <div className="flex items-center gap-4">
-            <p className="font-bold w-[200px]">صافي:</p>
-            <input
-              type="text"
-              disabled
-              readOnly
-              value={cLientData.netTotal}
-              className="p-2 rounded text-black bg-white"
-            />
-          </div>
-
-          <div className="flex items-center gap-4">
-            <p className="font-bold w-[200px]">إصابة:</p>
-            <input
-              type="text"
-              disabled
-              readOnly
-              value={cLientData.winTotal}
-              className="p-2 rounded text-black bg-white"
-            />
-          </div>
-
-          <div className="flex items-center gap-4">
-            <p className="font-bold w-[200px]">لنا / لكم:</p>
             <div className="flex items-center gap-4">
+              <p className="font-bold w-[300px]">مجموع اللعب /مجموع فوركست:</p>
+              <div className="flex items-center gap-4">
+                <input
+                  type="text"
+                  disabled
+                  readOnly
+                  value={cLientData.totalAmmount}
+                  className="p-2 rounded text-black bg-white"
+                />
+                <input
+                  type="text"
+                  disabled
+                  readOnly
+                  value={cLientData.forcastTotal}
+                  className="p-2 rounded text-black bg-white"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <p className="font-bold w-[300px]">صافي:</p>
               <input
                 type="text"
                 disabled
                 readOnly
-                value={
-                  Number((cLientData.netTotal - cLientData.winTotal).toFixed(1)) > 1
-                    ? (cLientData.netTotal - cLientData.winTotal).toFixed(1)
-                    : 0
-                }
+                value={cLientData.netTotal}
                 className="p-2 rounded text-black bg-white"
               />
+            </div>
+
+            <div className="flex items-center gap-4">
+              <p className="font-bold w-[300px]">إصابة:</p>
               <input
                 type="text"
                 disabled
@@ -130,56 +120,100 @@ export default function Page({ params }: PageProps) {
                 className="p-2 rounded text-black bg-white"
               />
             </div>
-          </div>
 
-          <div className="flex items-center gap-4">
-            <p className="font-bold w-[200px]">رجعة:</p>
-            <input
-              type="number"
-              value={backPrecent}
-              placeholder="نسبة مئوية"
-              onChange={(e) => setBackPercent(e.target.value)}
-              className="p-2 rounded text-black bg-white"
-            />
-            <input
-              type="number"
-              value={back}
-              readOnly
-              className="p-2 rounded text-black bg-white"
-            />
-          </div>
+            <div className="flex items-center gap-4">
+              <p className="font-bold w-[300px]">لنا / لكم:</p>
+              <div className="flex items-center gap-4">
+                <input
+                  type="text"
+                  disabled
+                  readOnly
+                  value={
+                    Number(
+                      (cLientData.netTotal - cLientData.winTotal).toFixed(1)
+                    ) > 1
+                      ? (cLientData.netTotal - cLientData.winTotal).toFixed(1)
+                      : 0
+                  }
+                  className="p-2 rounded text-black bg-white"
+                />
+                <input
+                  type="text"
+                  disabled
+                  readOnly
+                  value={cLientData.winTotal}
+                  className="p-2 rounded text-black bg-white"
+                />
+              </div>
+            </div>
 
-          <div className="flex items-center gap-4">
-            <p className="font-bold w-[200px]">إكرامية:</p>
-            <input
-              type="number"
-              value={tip}
-              onChange={(e) => setTip(e.target.value)}
-              className="p-2 rounded text-black bg-white"
-            />
-          </div>
+            <div className="flex items-center gap-4">
+              <p className="font-bold w-[300px]">رجعة:</p>
+              <input
+                type="number"
+                value={backPrecent}
+                placeholder="نسبة مئوية"
+                onChange={(e) => setBackPercent(e.target.value)}
+                className="p-2 rounded text-black bg-white"
+              />
+              <input
+                type="number"
+                value={back}
+                readOnly
+                className="p-2 rounded text-black bg-white"
+              />
+            </div>
 
-          <div className="flex items-center gap-4">
-            <p className="font-bold w-[200px]">لنا صافي:</p>
-            <input
-              type="number"
-              value={profits}
-              readOnly
-              className="p-2 rounded text-black bg-white"
-            />
+            <div className="flex items-center gap-4">
+              <p className="font-bold w-[300px]">إكرامية:</p>
+              <input
+                type="number"
+                value={tip}
+                onChange={(e) => setTip(e.target.value)}
+                className="p-2 rounded text-black bg-white"
+              />
+            </div>
+
+            <div className="flex items-center gap-4">
+              <p className="font-bold w-[300px]">لنا صافي:</p>
+              <input
+                type="number"
+                value={profits}
+                readOnly
+                className="p-2 rounded text-black bg-white"
+              />
+            </div>
+            <div className="flex items-center gap-4">
+              <p className="font-bold w-[300px]">ارباح فوركست:</p>
+              <input
+                type="number"
+                value={cLientData.forcastWins}
+                readOnly
+                className="p-2 rounded text-black bg-white"
+              />
+            </div>
+
+            <div className="flex items-center gap-4">
+              <p className="font-bold w-[300px]">لكم صافي:</p>
+              <input
+                type="number"
+                value={lose}
+                readOnly
+                className="p-2 rounded text-black bg-white"
+              />
+            </div>
+                <div className="flex items-center gap-4">
+              <p className="font-bold w-[300px]">لكم صافي + فوركست:</p>
+              <input
+                type="number"
+                value={lose + cLientData.forcastWins}
+                readOnly
+                className="p-2 rounded text-black bg-white"
+              />
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-            <p className="font-bold w-[200px]">لكم صافي:</p>
-            <input
-              type="number"
-              value={lose}
-              readOnly
-              className="p-2 rounded text-black bg-white"
-            />
-          </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
     </Suspense>
   );
 }

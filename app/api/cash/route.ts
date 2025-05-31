@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
     let cash = 0;
     let matchCardsCount = 0; // ✅ new counter
 
+
     if (match) {
         const levels = await prisma.levels.findMany({
             where: {
@@ -59,5 +60,5 @@ export async function POST(req: NextRequest) {
 
     cash = total * Number(match?.discount);
 
-    return NextResponse.json({ success: true, data : {betCount, total, cash, matchCardsCount }});
+    return NextResponse.json({ success: true, data : {betCount, total, cash, matchCardsCount , discount : match?.discount }});
 }

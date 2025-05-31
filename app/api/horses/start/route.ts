@@ -1,3 +1,4 @@
+import { getLevelWiners } from '@/lib/horses';
 import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -45,6 +46,26 @@ export async function POST(req: NextRequest) {
     for (const level of levels) {
         const horses = level.levelHorses.map((lh) => lh.horse);
         const horseData: Record<number, any> = {};
+        const forcasts = await prisma.forcastCard.findMany({
+            where  : {
+                levelId : level.id,
+            }
+        })
+        let totalForcast = 0;
+        let totalForcastWins = 0;
+        for (const forcast of forcasts) {
+           totalForcast += Number(forcast.ammount);
+           const levelWinners = await prisma.winners.findFirst({
+            where : {
+                levelId : level.id,
+            }
+           })
+           if(levelWinners){
+               if(forcast.firstHorse == levelWinners.firstHorse && forcast.secondHorse == levelWinners.secondHorse){
+                   totalForcastWins += Number(forcast.cash);
+               }
+           }
+        }
 
         for (const horse of horses) {
             let horseLira = Number(horse.initial_price)
@@ -106,6 +127,8 @@ export async function POST(req: NextRequest) {
             levelId: level.id,
             levelName: level.name,
             horses: Object.values(horseData),
+            totalForcast : totalForcast,
+            totalForcastWins : totalForcastWins,
         });
     }
 

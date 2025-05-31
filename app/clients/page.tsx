@@ -58,6 +58,7 @@ export default function Page() {
         <TableCaption>قائمة العملاء والمراهنات الخاصة بهم</TableCaption>
         <TableHeader>
           <TableRow>
+            <TableHead className="text-white text-center"> خيارات </TableHead>
           <TableHead className="text-white text-center"> احتمالات الربح</TableHead>
             <TableHead className="text-white text-center">حسابات الظريف</TableHead>
             <TableHead className="text-white text-center">

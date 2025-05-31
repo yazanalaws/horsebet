@@ -43,17 +43,19 @@ model levels {
   levelHorses levelHorses[]
   madeBy Int
   user users @relation(fields: [madeBy] , references: [id])
+  forcastCard forcastCard[]
 }
 model horses{
   id Int @id @default(autoincrement())
   name String
-  initial_price String?
-  final_price String?
+  initial_price String @default("1.00")
+  final_price String @default("1.00")
   levelHorses levelHorses[]
   firstForcasts  forcastCard[] @relation("FirstHorseRelation")
   secondForcasts forcastCard[] @relation("SecondHorseRelation")
   firstWinners  winners[] @relation("FirstHorseRelation")
   secondwinners winners[] @relation("SecondHorseRelation")
+  betHorses betHorses[]
 }
 model levelHorses{
   id Int @id @default(autoincrement())
@@ -63,6 +65,7 @@ model levelHorses{
   horse horses @relation(fields: [horseId] , references: [id])
   madeBy Int
   user users @relation(fields: [madeBy] , references: [id])
+
 }
 
 model bets{
@@ -80,6 +83,7 @@ model bets{
   card  card[]
   forcastCard forcastCard[]
   combo combo[]
+  betHorses betHorses[]
 }
 model customers{
   id Int @id @default(autoincrement())
@@ -110,10 +114,14 @@ model forcastCard {
    betId Int
    firstHorse Int
    secondHorse Int
-   ammount Int
+   ammount String
+   levelId Int
+   level levels @relation(fields: [levelId], references: [id])
+   cash String?
    bet bets @relation(fields: [betId] , references: [id])
    first  horses @relation("FirstHorseRelation", fields: [firstHorse], references: [id])
    second horses @relation("SecondHorseRelation", fields: [secondHorse], references: [id])
+
 }
 model cash {
    id Int @id @default(autoincrement())
@@ -130,4 +138,12 @@ model combo {
   bet bets @relation(fields: [betId] , references: [id])
   card card @relation(fields: [cardId], references: [id])
 
+}
+model betHorses {
+  id Int @id @default(autoincrement())
+  betId Int
+  horseId Int
+  levelId Int
+  bet bets @relation(fields: [betId], references: [id])
+  horse horses @relation(fields: [horseId], references: [id])
 }

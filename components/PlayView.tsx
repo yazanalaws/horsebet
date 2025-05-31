@@ -245,7 +245,7 @@ export default function PlayView({ matchId }: Props) {
   const submitBet = async () => {
     const betData = buildBetObject();
     if (!betData) return;
-    if(!betData.horses || betData.horses.length < 1){
+    if(!betData.isForcast && !betData.horses){
       toast.error("يجب اختيار حصان واحد على الاقل!");
       return
     }
@@ -275,6 +275,8 @@ export default function PlayView({ matchId }: Props) {
         toast.success("تم إرسال الرهان بنجاح!");
         setSelectedModes([]);
         setSelectedHorses({});
+        setBetMode(false);
+        setBetSelection([]);
       } else {
         toast.error("فشل في إرسال الرهان.");
       }

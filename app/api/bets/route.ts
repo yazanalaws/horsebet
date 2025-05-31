@@ -15,9 +15,12 @@ export async function POST(req: NextRequest) {
           OR: [
             { customer: { name: { contains: search} } },
             { user: { name: { contains: search} } }
-          ]
+          ],
+          and : {
+            isForcast : false
+          }
         }
-      : {};
+      : {isForcast : false};
 
     const [bets, total] = await Promise.all([
       prisma.bets.findMany({
@@ -26,6 +29,12 @@ export async function POST(req: NextRequest) {
           user: true,
           customer: true,
           card :   true,
+          combo: true,
+          betHorses : {
+            include: {
+              horse: true,
+            }
+          },
           forcastCard : {
             select : {
               firstHorse : true,
@@ -41,10 +50,13 @@ export async function POST(req: NextRequest) {
         where: whereCondition
       })
     ]);
-
+    const levels = await prisma.levels.findMany({
+      where: { matchId: bets[0]?.matchId },
+    })
     return NextResponse.json({
       success: true,
       bets,
+      levels,
       pagination: {
         total,
         page,

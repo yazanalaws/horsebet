@@ -20,6 +20,11 @@ export default function Navbar() {
      >
        الرهانات
      </Link>
+      <Link
+       href={'/forcast'}
+     >
+       فوركست
+     </Link>
      <Link
        href={'/match'}
      >
@@ -34,11 +39,6 @@ export default function Navbar() {
        href={'/cash'}
      >
        الحسابات
-     </Link>
-     <Link
-       href={'/settings'}
-     >
-       اعدادات
      </Link>
 
     </div>

@@ -1,57 +1,57 @@
-import { combo, horses, matchStatus } from "@prisma/client"
+import { betHorses, combo, horses, matchStatus } from "@prisma/client"
 
-export interface levelData{
-    levelId : number
-    levelName : string
-    horses : {
-        id : number
-        name : string
+export interface levelData {
+    levelId: number
+    levelName: string
+    horses: {
+        id: number
+        name: string
         initial_price: string | null;
         final_price: string | null;
     }[]
-    status : matchStatus
-    firstWinnerId : null | number
-    secondWinnerId : null | number
+    status: matchStatus
+    firstWinnerId: null | number
+    secondWinnerId: null | number
 }
-export interface client{
-    id : number
-    name : string
-    betCount : number
-    madeBy : string
+export interface client {
+    id: number
+    name: string
+    betCount: number
+    madeBy: string
 }
-export interface bet{
-    clientId : number
-    isOne : boolean
-    isTow : boolean
-    isThree : boolean
-    isFoure : boolean
-    isForcast : boolean
-    horses : {
-        horseId : number
-        levelId : number
+export interface bet {
+    clientId: number
+    isOne: boolean
+    isTow: boolean
+    isThree: boolean
+    isFoure: boolean
+    isForcast: boolean
+    horses: {
+        horseId: number
+        levelId: number
     }[] | null
-    forcastHorses : {
-        levelId : number
-        firstHorseId : number
-        secondHorseId : number
+    forcastHorses: {
+        levelId: number
+        firstHorseId: number
+        secondHorseId: number
     } | null
-    ammount : number
+    ammount: number
 }
 type Horse = {
     id: number;
     name: string;
     initial_price: string;
     final_price: string | null;
-  };
+};
 
-  type Level = {
+type Level = {
     id: number;
     matchId: number;
     name: string;
     madeBy: number;
-  };
+};
 
-  type Card = {
+type Card = {
     id: number;
     betId: number;
     ammount: string;
@@ -59,19 +59,19 @@ type Horse = {
     levelId: number;
     horse: Horse;
     level: Level;
-  };
+};
 
-  type User = {
+type User = {
     id: number;
     name: string;
     password: string;
-  };
+};
 
-  type Customer = {
+type Customer = {
     id: number;
     name: string;
     madeBy: number;
-  };
+};
 
 export type Bet = {
     id: number;
@@ -84,8 +84,16 @@ export type Bet = {
     user: User;
     customer: Customer;
     card: Card[];
+    betHorses: {
+        id: number;
+        betId: number;
+        horseId: number;
+        levelId: number;
+        horse :   Horse;
+    }[]
+    combo: combo[];
 };
-export interface cards{
+export interface cards {
     bet: {
         id: number;
         madeBy: number;
@@ -100,7 +108,7 @@ export interface cards{
             madeBy: number;
         }
     };
-    combo : combo[]
-    horse : horses
-    ammount : string
+    combo: combo[]
+    horse: horses
+    ammount: string
 }

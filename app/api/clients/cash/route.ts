@@ -40,7 +40,8 @@ export async function POST(req: NextRequest) {
   const bets = await prisma.bets.findMany({
     where: {
       customerId: client.id,
-      matchId: match.id
+      matchId: match.id,
+      isForcast: true
     },
     include: {
       card: {
@@ -50,7 +51,26 @@ export async function POST(req: NextRequest) {
       }
     }
   });
-
+  let forcastWins = 0;
+  let forcastTotal = 0;
+  const forcast = await prisma.forcastCard.findMany({
+    where: {
+      bet: {
+        customerId: client.id,
+        matchId: match.id,
+        isForcast: true
+      }
+    },
+    include: {
+      first: true,
+      second: true,
+      level: true
+    }
+  })
+  for (const bet of forcast) {
+    forcastWins += Number(bet.cash);
+    forcastTotal += Number(bet.ammount);
+  }
   for (const bet of bets) {
     for (const card of bet.card) {
       totalAmmount += Number(card.ammount);
@@ -107,6 +127,8 @@ export async function POST(req: NextRequest) {
     totalAmmount,
     netTotal,
     winTotal,
-    matchName : match.name
+    matchName : match.name,
+    forcastWins,
+    forcastTotal
   });
 }

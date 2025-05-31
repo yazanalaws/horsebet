@@ -6,6 +6,7 @@ interface matchData {
   total: number;
   cash: number;
   matchCardsCount: number;
+  discount: number;
 }
 export default function page() {
   const [matchData, setMatchData] = useState<matchData | null>(null);
@@ -83,7 +84,7 @@ export default function page() {
       )}
       <hr className="w-full" />
       <div className="flex flex-col">
-        <WinnersTable matchId={15} />
+        <WinnersTable matchId={15} discount={Number(matchData?.discount)} />
       </div>
     </div>
   );

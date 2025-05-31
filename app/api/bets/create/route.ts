@@ -56,14 +56,19 @@ export async function POST(req: NextRequest) {
         isTow: bet.isTow,
         isThree: bet.isThree,
         isFoure: bet.isFoure,
+        isForcast: bet.isForcast,
         madeBy: user.id,
         matchId: matchId,
       },
     });
 
-    if (newBet && bet.horses?.length > 0) {
-      const horses: Horse[] = bet.horses;
-      const allLevels = [...new Set(horses.map(h => h.levelId))].sort((a, b) => a - b);
+    if (newBet) {
+      let horses = {} as Horse[]
+      let allLevels = {} as number[]
+      if (bet.horses) {
+        horses = bet.horses;
+        allLevels = [...new Set(horses.map(h => h.levelId))].sort((a, b) => a - b);
+      }
 
       const processCombos = async (count: number) => {
         const card = await prisma.card.create({
@@ -104,8 +109,31 @@ export async function POST(req: NextRequest) {
       if (bet.isTow) await processCombos(2);
       if (bet.isThree) await processCombos(3);
       if (bet.isFoure) await processCombos(4);
-    }
+      if (bet.isForcast) {
+        console.log('its a forccast');
+        await prisma.forcastCard.create({
+          data: {
+            firstHorse: bet.forcastHorses.firstHorseId,
+            secondHorse: bet.forcastHorses.secondHorseId,
+            ammount: bet.ammount.toString(),
+            betId: newBet.id,
+            levelId: bet.forcastHorses.levelId,
+          }
+        });
+      }
+      if (horses.length > 0) {
+        for (const horse of horses) {
+          await prisma.betHorses.create({
+            data: {
+              betId: newBet.id,
+              horseId: horse.horseId,
+              levelId: horse.levelId,
+            },
+          });
+        }
+      }
 
+    }
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error creating bet:', error);

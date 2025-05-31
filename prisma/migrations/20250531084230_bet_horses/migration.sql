@@ -1,0 +1,8 @@
+-- CreateTable
+CREATE TABLE "betHorses" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "betId" INTEGER NOT NULL,
+    "horseId" INTEGER NOT NULL,
+    CONSTRAINT "betHorses_betId_fkey" FOREIGN KEY ("betId") REFERENCES "bets" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "betHorses_horseId_fkey" FOREIGN KEY ("horseId") REFERENCES "horses" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);

@@ -156,10 +156,9 @@ export default function LevelsCreator({ matchId  , setLevelsCreated}: Props) {
                 <input
                   type='number'
                   inputMode='decimal'
-
                   className='w-[90px] outline-none border-none shadow text-right'
                   placeholder='السعر المبدئي'
-                  value={horse.price}
+                  value={1.00}
                   onChange={e => updateHorse(level.id, i, 'price', e.target.value)}
                 />
                 <button
