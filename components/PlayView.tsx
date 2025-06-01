@@ -42,7 +42,9 @@ export default function PlayView({ matchId }: Props) {
     { id: number; name: string; levelId: number }[]
   >([]);
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
-  const [selectingWinnersForLevel, setSelectingWinnersForLevel] = useState<number | null>(null);
+  const [selectingWinnersForLevel, setSelectingWinnersForLevel] = useState<
+    number | null
+  >(null);
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -78,7 +80,7 @@ export default function PlayView({ matchId }: Props) {
                       ...lvl,
                       status,
                       firstWinnerId,
-                      secondWinnerId
+                      secondWinnerId,
                     }
                   : lvl
               )
@@ -144,13 +146,13 @@ export default function PlayView({ matchId }: Props) {
   ) => {
     if (selectingWinnersForLevel === levelId) {
       if (!winners.first) {
-        setWinners({...winners, first: horseId});
+        setWinners({ ...winners, first: horseId });
       } else if (!winners.second && horseId !== winners.first) {
-        setWinners({...winners, second: horseId});
+        setWinners({ ...winners, second: horseId });
       } else if (winners.first === horseId) {
-        setWinners({...winners, first: winners.second, second: 0});
+        setWinners({ ...winners, first: winners.second, second: 0 });
       } else if (winners.second === horseId) {
-        setWinners({...winners, second: 0});
+        setWinners({ ...winners, second: 0 });
       }
       return;
     }
@@ -245,21 +247,27 @@ export default function PlayView({ matchId }: Props) {
   const submitBet = async () => {
     const betData = buildBetObject();
     if (!betData) return;
-    if(!betData.isForcast && !betData.horses){
+    if (!betData.isForcast && !betData.horses) {
       toast.error("يجب اختيار حصان واحد على الاقل!");
-      return
+      return;
     }
-    if(!selectedClientId){
-      toast.error("الرجاء اختيار اسم الظريف قبل المتابعة")
-      return
+    if (!selectedClientId) {
+      toast.error("الرجاء اختيار اسم الظريف قبل المتابعة");
+      return;
     }
-    if(ammount.length < 1){
-      toast.error('يرجى تحديد المبلغ قبل المتابعة')
-      return
+    if (ammount.length < 1) {
+      toast.error("يرجى تحديد المبلغ قبل المتابعة");
+      return;
     }
-    if(!betData.isForcast && !betData.isTow && !betData.isOne && !betData.isThree && !betData.isFoure){
-      toast.error('الرجاء اختيار نوع الورقة')
-      return
+    if (
+      !betData.isForcast &&
+      !betData.isTow &&
+      !betData.isOne &&
+      !betData.isThree &&
+      !betData.isFoure
+    ) {
+      toast.error("الرجاء اختيار نوع الورقة");
+      return;
     }
     try {
       const res = await fetch("/api/bets/create", {
@@ -267,7 +275,11 @@ export default function PlayView({ matchId }: Props) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ bet: betData, username: username , matchId : matchId}),
+        body: JSON.stringify({
+          bet: betData,
+          username: username,
+          matchId: matchId,
+        }),
       });
 
       const result = await res.json();
@@ -294,8 +306,8 @@ export default function PlayView({ matchId }: Props) {
       },
       body: JSON.stringify({ levelId, status }),
     });
-    if(status == matchStatus.ENDED){
-      setSelectingWinnersForLevel(levelId)
+    if (status == matchStatus.ENDED) {
+      setSelectingWinnersForLevel(levelId);
     }
   };
 
@@ -314,14 +326,14 @@ export default function PlayView({ matchId }: Props) {
         body: JSON.stringify({
           levelId,
           firstHorseId: winners.first,
-          secondHorseId: winners.second
+          secondHorseId: winners.second,
         }),
       });
 
       if (res.ok) {
         toast.success("تم حفظ الفائزين بنجاح");
         setSelectingWinnersForLevel(null);
-        setWinners({first: 0, second: 0});
+        setWinners({ first: 0, second: 0 });
       } else {
         toast.error("فشل في حفظ الفائزين");
       }
@@ -330,32 +342,70 @@ export default function PlayView({ matchId }: Props) {
       toast.error("حدث خطأ أثناء حفظ الفائزين");
     }
   };
-
+  const resetLevel = async (levelId: number) => {
+    const res = await fetch("/api/level/restart", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ levelId }),
+    });
+    if (res.ok) {
+      setHorses((prev) =>
+        prev
+          ? prev.map((lvl) =>
+              lvl.levelId === levelId
+                ? {
+                    ...lvl,
+                    status: matchStatus.PENDING,
+                    firstWinnerId: null,
+                    secondWinnerId: null,
+                  }
+                : lvl
+            )
+          : prev
+      );
+      toast.success("تم إعادة الشوط بنجاح");
+    }
+  };
   return (
     <div className="w-[98%] mt-[70px] flex flex-col items-center">
       <div className="w-full flex flex-wrap flex-row-reverse justify-center gap-4">
         {horses?.map((level) => (
-          <div key={level.levelId} className="w-[150px] bg-white rounded p-2 shadow text-black">
+          <div
+            key={level.levelId}
+            className="w-[150px] bg-white rounded p-2 shadow text-black"
+          >
             <p className="text-sm text-center font-bold mb-2">
               {level.levelName}
             </p>
 
-            {level.status === matchStatus.ENDED && !selectingWinnersForLevel && (
-              <p className="text-[12px] mb-2 text-center text-red-700">
-                {level.firstWinnerId && level.secondWinnerId
-                  ? "تم اختيار الفائزين"
-                  : "الرجاء تحديد الخيول الرابحة"}
-              </p>
-            )}
+            {level.status === matchStatus.ENDED &&
+              !selectingWinnersForLevel && (
+                <p className="text-[12px] mb-2 text-center text-red-700">
+                  {level.firstWinnerId && level.secondWinnerId
+                    ? "تم اختيار الفائزين"
+                    : "الرجاء تحديد الخيول الرابحة"}
+                </p>
+              )}
 
             {level.horses.map((horse) => {
-              const isSelectedInBet = betSelection.find(h => h.id === horse.id);
+              const isSelectedInBet = betSelection.find(
+                (h) => h.id === horse.id
+              );
               const isFirstBet = betSelection[0]?.id === horse.id;
               const isSecondBet = betSelection[1]?.id === horse.id;
-              const isRegularSelected = selectedHorses[level.levelId]?.[horse.name] === horse.id;
-              const isFirstWinner = selectingWinnersForLevel === level.levelId && winners.first === horse.id;
-              const isSecondWinner = selectingWinnersForLevel === level.levelId && winners.second === horse.id;
-              const isSavedWinner = level.firstWinnerId === horse.id || level.secondWinnerId === horse.id;
+              const isRegularSelected =
+                selectedHorses[level.levelId]?.[horse.name] === horse.id;
+              const isFirstWinner =
+                selectingWinnersForLevel === level.levelId &&
+                winners.first === horse.id;
+              const isSecondWinner =
+                selectingWinnersForLevel === level.levelId &&
+                winners.second === horse.id;
+              const isSavedWinner =
+                level.firstWinnerId === horse.id ||
+                level.secondWinnerId === horse.id;
 
               return (
                 <button
@@ -405,10 +455,21 @@ export default function PlayView({ matchId }: Props) {
 
             <button
               onClick={async () => {
-                if (level.status === matchStatus.ENDED && selectingWinnersForLevel !== level.levelId) {
-                  // Start selecting winners for this level
+                if (
+                  level.status === matchStatus.ENDED &&
+                  !selectingWinnersForLevel
+                ) {
+                  console.log("resetting level", level.levelId);
+                  await resetLevel(level.levelId);
+                  return;
+                }
+
+                if (
+                  level.status === matchStatus.ENDED &&
+                  selectingWinnersForLevel !== level.levelId
+                ) {
                   setSelectingWinnersForLevel(level.levelId);
-                  setWinners({first: 0, second: 0});
+                  setWinners({ first: 0, second: 0 });
                   return;
                 }
 
@@ -431,9 +492,9 @@ export default function PlayView({ matchId }: Props) {
 
                 if (newStatus) {
                   await updateStatus(level.levelId, newStatus);
-                  setHorses(prev =>
+                  setHorses((prev) =>
                     prev
-                      ? prev.map(lvl =>
+                      ? prev.map((lvl) =>
                           lvl.levelId === level.levelId
                             ? { ...lvl, status: newStatus }
                             : lvl
@@ -460,9 +521,7 @@ export default function PlayView({ matchId }: Props) {
                     : "gray",
               }}
               className="rounded w-full py-1 text-white"
-              disabled={level.status === matchStatus.ENDED &&
-                        !selectingWinnersForLevel &&
-                        (!level.firstWinnerId || !level.secondWinnerId)}
+
             >
               {selectingWinnersForLevel === level.levelId
                 ? winners.first && winners.second
@@ -472,6 +531,8 @@ export default function PlayView({ matchId }: Props) {
                 ? "إبدا الشوط"
                 : level.status === matchStatus.STARTED
                 ? "إنهاء الشوط"
+                : level.status === matchStatus.ENDED
+                ? "إعادة الشوط"
                 : "منتهي"}
             </button>
           </div>

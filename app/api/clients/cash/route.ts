@@ -68,7 +68,8 @@ export async function POST(req: NextRequest) {
     }
   })
   for (const bet of forcast) {
-    forcastWins += Number(bet.cash);
+    const winAmmount = Number(bet.ammount) * Number(bet.level.forcastPrice);
+    forcastWins += winAmmount;
     forcastTotal += Number(bet.ammount);
   }
   for (const bet of bets) {

@@ -40,7 +40,7 @@ export default function Page({ params }: PageProps) {
         const data = await res.json();
         setClientData(data);
 
-        const baseProfit = Number((data.netTotal - data.winTotal).toFixed(1));
+        const baseProfit = Number(((data.netTotal - data.winTotal) + data.forcastWins).toFixed(1));
         if (baseProfit > 1) {
           setOriginalProfits(baseProfit);
           setProfits(baseProfit.toString());
@@ -130,9 +130,9 @@ export default function Page({ params }: PageProps) {
                   readOnly
                   value={
                     Number(
-                      (cLientData.netTotal - cLientData.winTotal).toFixed(1)
+                      ((cLientData.netTotal + cLientData.forcastWins) - cLientData.winTotal).toFixed(1)
                     ) > 1
-                      ? (cLientData.netTotal - cLientData.winTotal).toFixed(1)
+                      ? ((cLientData.netTotal + cLientData.forcastWins) - cLientData.winTotal).toFixed(1)
                       : 0
                   }
                   className="p-2 rounded text-black bg-white"
@@ -197,7 +197,7 @@ export default function Page({ params }: PageProps) {
               <p className="font-bold w-[300px]">لكم صافي:</p>
               <input
                 type="number"
-                value={lose}
+                value={lose + cLientData.forcastWins}
                 readOnly
                 className="p-2 rounded text-black bg-white"
               />

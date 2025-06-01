@@ -40,10 +40,12 @@ model levels {
   matchId Int
   name String
   status  matchStatus @default(PENDING)
+  forcastPrice String @default("1.00")
   levelHorses levelHorses[]
   madeBy Int
   user users @relation(fields: [madeBy] , references: [id])
   forcastCard forcastCard[]
+
 }
 model horses{
   id Int @id @default(autoincrement())

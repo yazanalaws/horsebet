@@ -62,7 +62,9 @@ export async function POST(req: NextRequest) {
            })
            if(levelWinners){
                if(forcast.firstHorse == levelWinners.firstHorse && forcast.secondHorse == levelWinners.secondHorse){
-                   totalForcastWins += Number(forcast.cash);
+                  const winAmmount = Number(forcast.cash) * Number(level.forcastPrice)
+                  totalForcastWins += winAmmount;
+
                }
            }
         }
