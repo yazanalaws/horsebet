@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
     const data = await req.json();
-    const { matchName, levelsCount, username } = data;
+    const { matchName, levelsCount, username , discount } = data;
 
     if (Number(levelsCount) < 5) {
         return NextResponse.json({ success: false, message: 'عدد الاشواط يجب ان يكون خمسة او اكثر' });
@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
         data: {
             name: matchName,
             madeBy: user.id,
+            discount: discount,
         },
     });
 

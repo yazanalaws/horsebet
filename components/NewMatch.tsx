@@ -7,7 +7,7 @@ interface Props {
 export default function NewMatch({setMatchId} : Props) {
   const defaultName = new Date().toLocaleDateString('en-GB')
   const [matchName, setMatchName] = useState(defaultName);
-  const [descount , setDescount] = useState('')
+  const [discount , setDiscount] = useState('')
   const [levelsCount, setLevelsCount] = useState<string>("");
   const username = Cookies.get("username");
   const createMatch = async () => {
@@ -16,7 +16,7 @@ export default function NewMatch({setMatchId} : Props) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ matchName, levelsCount, username , descount }),
+      body: JSON.stringify({ matchName, levelsCount, username , discount }),
     });
     if (res.ok) {
       const data = await res.json();
@@ -60,9 +60,9 @@ export default function NewMatch({setMatchId} : Props) {
           <div className="flex justify-end rounded py-0.5 bg-[#f8f8f8] shadow">
             <input
               required
-              value={descount}
+              value={discount}
               inputMode='decimal'
-              onChange={(e) => setDescount(e.target.value)}
+              onChange={(e) => setDiscount(e.target.value)}
               type="text"
               className="w-full px-0.5 text-right border-none outline-none"
               placeholder="مثال : 0.80"
