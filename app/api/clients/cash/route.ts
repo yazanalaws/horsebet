@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     where: {
       customerId: client.id,
       matchId: match.id,
-      isForcast: true
+      isForcast: false
     },
     include: {
       card: {
@@ -68,8 +68,24 @@ export async function POST(req: NextRequest) {
     }
   })
   for (const bet of forcast) {
-    const winAmmount = Number(bet.ammount) * Number(bet.level.forcastPrice);
-    forcastWins += winAmmount;
+    const levelWinners = await prisma.winners.findFirst({
+      where  : {
+        levelId : bet.levelId
+      }
+    })
+
+    const levelPrice =  Number(bet.level.forcastPrice);
+    let winammount = 0;
+
+    if(levelPrice == 1){
+       winammount = Number(bet.ammount) * (levelPrice * Number(match.discount)) ;
+    }else {
+      winammount = Number(bet.ammount) * levelPrice;
+    }
+    if(bet.firstHorse == levelWinners?.firstHorse && bet.secondHorse == levelWinners.secondHorse){
+      forcastWins += winammount;
+    }
+
     forcastTotal += Number(bet.ammount);
   }
   for (const bet of bets) {
@@ -120,14 +136,14 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const netTotal = totalAmmount * Number(match?.discount);
+  const netTotal = (totalAmmount + forcastTotal) * Number(match?.discount);
 
   return NextResponse.json({
     success: true,
     clientName,
-    totalAmmount,
+    totalAmmount : totalAmmount + forcastTotal,
     netTotal,
-    winTotal,
+    winTotal : winTotal + forcastWins,
     matchName : match.name,
     forcastWins,
     forcastTotal
