@@ -39,7 +39,8 @@ export async function POST(req: NextRequest) {
           final_price: horse.horse.final_price
         })),
         firstWinnerId : winners?.firstHorse? winners?.firstHorse : null,
-        secondWinnerId : winners?.secondHorse? winners?.secondHorse : null
+        secondWinnerId : winners?.secondHorse? winners?.secondHorse : null,
+        forcastPrice : level.forcastPrice
 
       };
     })
