@@ -69,32 +69,33 @@ export async function POST(req: NextRequest) {
   })
   for (const bet of forcast) {
     const levelWinners = await prisma.winners.findFirst({
-      where  : {
-        levelId : bet.levelId
+      where: {
+        levelId: bet.levelId
       }
     })
 
-    const levelPrice =  Number(bet.level.forcastPrice);
-    let winammount = 0;
+    const levelPrice = Number(bet.level.forcastPrice) * Number(match.discount);
+    const winammount = Number(bet.ammount) * levelPrice;
 
-    if(levelPrice == 1){
-       winammount = Number(bet.ammount) * (levelPrice * Number(match.discount)) ;
-    }else {
-      winammount = Number(bet.ammount) * levelPrice;
-    }
-    if(bet.firstHorse == levelWinners?.firstHorse && bet.secondHorse == levelWinners.secondHorse){
+    if (bet.firstHorse == levelWinners?.firstHorse && bet.secondHorse == levelWinners.secondHorse) {
       forcastWins += winammount;
     }
 
     forcastTotal += Number(bet.ammount);
   }
+
   for (const bet of bets) {
+    const betHorses = await prisma.betHorses.findMany({
+      where: {
+        betId: bet.id
+      }
+    })
     for (const card of bet.card) {
-      totalAmmount += Number(card.ammount);
+
 
       for (const combo of card.combo) {
         let comboData;
-
+        totalAmmount += Number(card.ammount);
         try {
           comboData = JSON.parse(combo.combo);
         } catch (e) {
@@ -128,9 +129,28 @@ export async function POST(req: NextRequest) {
         const isWinningCombo = allLevelsEnded && allHorsesWon;
 
         if (isWinningCombo) {
-          const price = allHorsesPrice.reduce((total, price) => total * price, 1);
-          const win = Number(card.ammount) * price;
-          winTotal += Number(win.toFixed(1));
+          const betHorsesPrice = allHorsesPrice.reduce((total, price) => total * price, 1);
+          let roundedPrice = betHorsesPrice;
+          const decimalPart = betHorsesPrice % 1;
+          const secondDecimal = Math.floor(decimalPart * 100) % 10;
+           if (betHorses.length > 2) {
+            roundedPrice = betHorsesPrice * Number(match.discount);
+          }
+          if (decimalPart > 0) {
+            const firstDecimal = Math.floor(decimalPart * 10) % 10;
+            if (secondDecimal > 5) {
+              roundedPrice = Math.floor(betHorsesPrice * 10) / 10 + 0.05;
+            } else {
+              roundedPrice = Math.floor(betHorsesPrice * 10) / 10;
+            }
+            // Ensure two decimals
+            roundedPrice = Number(roundedPrice.toFixed(2));
+          } else {
+            roundedPrice = Number(betHorsesPrice.toFixed(2));
+          }
+          console.log(roundedPrice)
+          const win = Number(card.ammount) * roundedPrice;
+          winTotal += Number(win.toFixed(2));
         }
       }
     }
@@ -141,10 +161,12 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     success: true,
     clientName,
-    totalAmmount : totalAmmount + forcastTotal,
+    totalAmmount: totalAmmount + forcastTotal,
     netTotal,
-    winTotal : winTotal + forcastWins,
-    matchName : match.name,
+    winTotal: winTotal + forcastWins,
+    playWin: winTotal,
+    matchName: match.name,
+    matchDiscount : Number(match?.discount),
     forcastWins,
     forcastTotal
   });

@@ -39,7 +39,8 @@ export async function POST(req: NextRequest) {
                     final_price: horse.horse.final_price
                 })),
                 firstWinnerId: null,
-                secondWinnerId: null
+                secondWinnerId: null,
+                forcastPrice : level.forcastPrice
             }
                 levelsData.push(
                 leveColmn

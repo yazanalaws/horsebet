@@ -36,8 +36,11 @@ export async function POST(req: NextRequest) {
             card: {
                 include: {
                     combo: true,
+
                 },
+
             },
+            betHorses :  true
         },
     });
 
@@ -102,7 +105,7 @@ export async function POST(req: NextRequest) {
                         const afterAllZero = afterSlice.every((e) => e.horseId === 0);
                         const isFirstNonZero = combo.findIndex((e) => e.horseId !== 0) === i;
                         let horsePrice = horseData[horseId].price
-                        if(horseData[horseId].price == 1){
+                        if(bet.betHorses.length < 2 ){
                             horsePrice = Number(match?.discount)
                         }
                         const startsWith =

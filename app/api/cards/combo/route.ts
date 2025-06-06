@@ -112,8 +112,27 @@ export async function POST(req: NextRequest) {
         row[`level_${level.id}`] = { name: '-', winner: true, status: level.status };
       }
     }
-    horsesPrice = prices.reduce((total, price) => total * price, 1);
-    row['horsesPrice'] = horsesPrice.toFixed(1)
+    const allhorsesPrice = prices.reduce((total, price) => total * price, 1);
+
+    // Custom rounding: if second decimal digit > 5, round to .x5, else to .x0
+    let roundedPrice = allhorsesPrice;
+    const decimalPart = allhorsesPrice % 1;
+    const secondDecimal = Math.floor(decimalPart * 100) % 10;
+
+    if (decimalPart > 0) {
+      const firstDecimal = Math.floor(decimalPart * 10) % 10;
+      if (secondDecimal > 5) {
+      roundedPrice = Math.floor(allhorsesPrice * 10) / 10 + 0.05;
+      } else {
+      roundedPrice = Math.floor(allhorsesPrice * 10) / 10;
+      }
+      // Ensure two decimals
+      roundedPrice = Number(roundedPrice.toFixed(2));
+    } else {
+      roundedPrice = Number(allhorsesPrice.toFixed(2));
+    }
+
+    row['horsesPrice'] = roundedPrice;
 
     row.rowStatus = allLevelsEnded ? allHorsesWon ? 'يربح' : 'يخسر' : 'قيد المراجعة';
     if(!winers){

@@ -1,6 +1,7 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
-
+import React, { use, useEffect, useRef, useState } from "react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 interface PageProps {
   params: Promise<{ id: number }>;
 }
@@ -13,6 +14,8 @@ interface data {
   matchName: string;
   forcastWins: number;
   forcastTotal: number;
+  playWin: number;
+  matchDiscount : number;
 }
 import { Suspense } from "react";
 export default function Page({ params }: PageProps) {
@@ -24,6 +27,7 @@ export default function Page({ params }: PageProps) {
   const [profits, setProfits] = useState("0");
   const [originalProfits, setOriginalProfits] = useState(0);
   const [lose, setLose] = useState("");
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchCash = async () => {
@@ -44,7 +48,9 @@ export default function Page({ params }: PageProps) {
         if (baseProfit > 1) {
           setOriginalProfits(baseProfit);
           setProfits(baseProfit.toString());
+          let loseAmmount = 0;
 
+          setLose(`${data.winTotal}`);
         } else {
           setOriginalProfits(0);
           setProfits("0");
@@ -64,13 +70,21 @@ export default function Page({ params }: PageProps) {
     const backAmount = (originalProfits * backPercentValue) / 100;
     setBack(backAmount.toFixed(1));
 
+    // Recalculate "لنا صافي" (our profit) after رجعة and إكرامية
     const newProfits = originalProfits - backAmount - tipValue;
     setProfits(newProfits > 0 ? newProfits.toFixed(1) : "0");
-  }, [backPrecent, tip, originalProfits]);
+
+    // "لكم صافي" (user's amount) is their original winTotal + رجعة + إكرامية
+    if (cLientData) {
+      const userWinAmount = cLientData.winTotal + backAmount + tipValue;
+      setLose(userWinAmount.toFixed(1));
+    }
+  }, [backPrecent, tip, originalProfits, cLientData]);
 
   return (
     <Suspense>
       <div
+        ref={contentRef}
         className="w-[95%] m-auto min-h-screen h-auto mb-[60px] mt-[60px] text-white text-lg"
         dir="rtl"
       >
@@ -112,14 +126,22 @@ export default function Page({ params }: PageProps) {
             </div>
 
             <div className="flex items-center gap-4">
-              <p className="font-bold w-[300px]">إصابة:</p>
-              <input
-                type="text"
-                disabled
-                readOnly
-                value={cLientData.winTotal}
-                className="p-2 rounded text-black bg-white"
-              />
+              <p className="font-bold w-[300px]">إصابة (لعب/فوركست):</p>
+              <div className="flex items-center gap-4">
+                <input
+                  type="text"
+                  disabled
+                  readOnly
+                  value={cLientData.playWin}
+                  className="p-2 rounded text-black bg-white"
+                />
+                <input
+                  type="number"
+                  value={cLientData.forcastWins}
+                  readOnly
+                  className="p-2 rounded text-black bg-white"
+                />
+              </div>
             </div>
 
             <div className="flex items-center gap-4">
@@ -154,7 +176,10 @@ export default function Page({ params }: PageProps) {
                 type="number"
                 value={backPrecent}
                 placeholder="نسبة مئوية"
-                onChange={(e) => setBackPercent(e.target.value)}
+                onChange={(e) => {
+                  setLose(`${cLientData.winTotal}`);
+                  setBackPercent(e.target.value);
+                }}
                 className="p-2 rounded text-black bg-white"
               />
               <input
@@ -170,7 +195,10 @@ export default function Page({ params }: PageProps) {
               <input
                 type="number"
                 value={tip}
-                onChange={(e) => setTip(e.target.value)}
+                onChange={(e) => {
+                  setLose(`${cLientData.winTotal}`);
+                  setTip(e.target.value);
+                }}
                 className="p-2 rounded text-black bg-white"
               />
             </div>
@@ -184,34 +212,8 @@ export default function Page({ params }: PageProps) {
                 className="p-2 rounded text-black bg-white"
               />
             </div>
-            <div className="flex items-center gap-4">
-              <p className="font-bold w-[300px]">ارباح فوركست:</p>
-              <input
-                type="number"
-                value={cLientData.forcastWins}
-                readOnly
-                className="p-2 rounded text-black bg-white"
-              />
-            </div>
 
-            <div className="flex items-center gap-4">
-              <p className="font-bold w-[300px]">لكم صافي:</p>
-              <input
-                type="number"
-                value={lose}
-                readOnly
-                className="p-2 rounded text-black bg-white"
-              />
-            </div>
-                <div className="flex items-center gap-4">
-              <p className="font-bold w-[300px]">لكم صافي + فوركست:</p>
-              <input
-                type="number"
-                value={lose}
-                readOnly
-                className="p-2 rounded text-black bg-white"
-              />
-            </div>
+
           </div>
         )}
       </div>

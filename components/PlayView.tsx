@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { matchStatus } from "@prisma/client";
 import { toast } from "sonner";
+import LoginModal from "./LoginModal";
 
 export interface bet {
   clientId: number;
@@ -30,10 +31,12 @@ interface Props {
 }
 
 export default function PlayView({ matchId }: Props) {
+  const [showLogin , setShowLogin] = useState(false)
+  const [selectedLevel , setSelectedLevel] = useState(0)
   const [winners, setWinners] = useState({ first: 0, second: 0 });
   const [ammount, setAmmount] = useState("");
   const [horses, setHorses] = useState<levelData[] | null>(null);
-  const [selectedModes, setSelectedModes] = useState<number[]>([]);
+  const [selectedModes, setSelectedModes] = useState<number[]>([3]);
   const [selectedHorses, setSelectedHorses] = useState<Record<number, any>>({});
   const [betMode, setBetMode] = useState(false);
   const [clients, setClients] = useState<client[]>([]);
@@ -246,6 +249,7 @@ export default function PlayView({ matchId }: Props) {
 
   const submitBet = async () => {
     const betData = buildBetObject();
+    console.log(selectedModes)
     if (!betData) return;
     if (!betData.isForcast && !betData.horses) {
       toast.error("يجب اختيار حصان واحد على الاقل!");
@@ -342,6 +346,11 @@ export default function PlayView({ matchId }: Props) {
       toast.error("حدث خطأ أثناء حفظ الفائزين");
     }
   };
+  const recheckPassword = async (levelId: number) =>{
+     setSelectedLevel(levelId)
+     setShowLogin(true)
+
+  }
   const resetLevel = async (levelId: number) => {
     const res = await fetch("/api/level/restart", {
       method: "POST",
@@ -460,7 +469,7 @@ export default function PlayView({ matchId }: Props) {
                   !selectingWinnersForLevel
                 ) {
                   console.log("resetting level", level.levelId);
-                  await resetLevel(level.levelId);
+                  recheckPassword(level.levelId);
                   return;
                 }
 
@@ -603,6 +612,8 @@ export default function PlayView({ matchId }: Props) {
           </button>
         </div>
       </div>
+      {showLogin &&
+      <LoginModal username={username || ''} levelId={selectedLevel} setShowLogin={setShowLogin} resetLevel={resetLevel} />}
     </div>
   );
 }

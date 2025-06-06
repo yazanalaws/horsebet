@@ -17,6 +17,7 @@ type Level = {
   horses: Horse[]
   firstWinnerId: number | null
   secondWinnerId: number | null
+  forcastPrice : string
 }
 
 export default function LevelsEditor() {
@@ -61,7 +62,7 @@ export default function LevelsEditor() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         horseId,
-        [field]: field === 'name' ? value : parseFloat(value) || 0,
+        [field]: field === 'name' ? value : value || 0,
       }),
     })
   }
@@ -86,7 +87,26 @@ export default function LevelsEditor() {
       )
     }
   }
+  const updateForcastPrice = async (levelId : number , forcastPrice : string) => {
+    setLevelsData(prev =>
+        prev.map(level =>
+          level.levelId ===  levelId
+          ?{
+             ...level,
+             forcastPrice : forcastPrice
+          } : level
+        )
+      )
 
+    const res = await fetch('/api/level/update'  , {
+      method : 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       body : JSON.stringify({levelId , forcastPrice})
+    })
+    if(res.ok){
+
+    }
+  }
   return (
     <div className='w-[95%] h-auto flex mt-[100px] min-h-screen pb-2 gap-4 mx-auto flex-row-reverse justify-center flex-wrap'>
       {levelsData.map(level => (
@@ -137,6 +157,13 @@ export default function LevelsEditor() {
               </button>
             </div>
           ))}
+          <hr className='mt-2'></hr>
+            <div
+              className='flex mt-4 flex-row-reverse gap-2 justify-between items-center '
+            >
+             <p>سعر فوركست</p>
+             <input type='number' className='max-w-[100px] shadow' inputMode='decimal' value={level.forcastPrice} onChange={ (e) =>  updateForcastPrice(level.levelId , e.target.value)}/>
+            </div>
         </div>
       ))}
     </div>

@@ -1,4 +1,3 @@
-import { getLevelWiners } from '@/lib/horses';
 import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -34,7 +33,9 @@ export async function POST(req: NextRequest) {
         });
 
         if (matchCards && levels.length > 0) {
-           matchCardsCount = matchCards.length
+           for(const card of matchCards){
+               matchCardsCount += card.combo.length; // ✅ count the number of cards in the match
+            }
         }
 
         const bets = await prisma.bets.findMany({

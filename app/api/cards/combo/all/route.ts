@@ -112,8 +112,9 @@ export async function POST(req: NextRequest) {
         row[`level_${level.id}`] = { name: '-', winner: true, status: level.status };
       }
     }
-    horsesPrice = prices.reduce((total, price) => total * price, 1);
-    row['horsesPrice'] = horsesPrice.toFixed(1)
+    const allHorsesPrice = prices.reduce((total, price) => total * price, 1);
+    //if all horses price is demical
+    row['horsesPrice'] = allHorsesPrice
 
     row.rowStatus = allLevelsEnded ? allHorsesWon ? 'يربح' : 'يخسر' : 'قيد المراجعة';
     if(!winers){
@@ -134,6 +135,7 @@ export async function POST(req: NextRequest) {
       page,
       pageSize,
       total: totalCombos // Now using total combos count
-    }
+    },
+    matchDiscount : match.discount
   });
 }

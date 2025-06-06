@@ -1,12 +1,15 @@
 "use client"
 import React, { useState } from "react";
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
-import LoginModal from "@/components/LoginModal";
-export default function page() {
-  const [username, setUsername] = useState("");
+import { MdClose } from "react-icons/md";
+interface Props {
+    username : string
+    resetLevel: (levelId: number) => Promise<void>
+    levelId: number
+    setShowLogin: (value: React.SetStateAction<boolean>) => void
+}
+export default function LoginModal({username , resetLevel , levelId , setShowLogin} : Props) {
   const [password, setPassword] = useState("");
-  const router = useRouter()
   const login = async () => {
      const res = await fetch('/api/login' , {
         method : "POST",
@@ -16,28 +19,17 @@ export default function page() {
         body : JSON.stringify({username , password})
      })
      if(res.ok){
-        Cookies.set('username' , username)
-        router.push('/')
+
+         resetLevel(levelId)
+         setShowLogin(false)
 
      }
   };
   return (
-    <div className="w-screen h-screen flex justify-center items-center">
+    <div className="w-screen fixed top-0 left-0 bg-[#ffffff70] h-screen flex justify-center items-center">
       <form className="flex flex-col p-4  gap-4 rounded bg-white text-black w-[100%] max-w-[300px] h-auto ">
         <div className="w-full flex flex-col gap-2 justify-end">
-          <p className="text-right">اسم المستخدم</p>
-          <div className="flex justify-end rounded py-0.5 bg-[#f8f8f8] shadow">
-            <input
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              type="text"
-              className="w-full px-0.5 text-right border-none outline-none"
-              placeholder="admin"
-            />
-          </div>
-        </div>
-        <div className="w-full flex flex-col gap-2 justify-end">
+          <div className="flex justify-end-safe items-center" onClick={() => setShowLogin(false)}><MdClose color="black"  size={24}/> </div>
           <p className="text-right">كلمة السر </p>
           <div className="flex justify-end rounded py-0.5 bg-[#f4f4f4] shadow">
             <input
@@ -55,10 +47,9 @@ export default function page() {
           type="button"
           className="p-0.5 shadow bg-green-600 text-white rounded mb-2"
         >
-          تسجيل الدخول
+          تأكيد إعادة الشوط
         </button>
       </form>
-
     </div>
   );
 }

@@ -18,7 +18,7 @@ type ForcastCard = {
   placement: string;
   first: { name: string };
   second: { name: string };
-  level: { name: string };
+  level: { name: string , forcastPrice : string };
   cash?: string;
 };
 
@@ -60,6 +60,7 @@ export default function Page() {
       });
       const data = await res.json();
       if (data.success) {
+
         setBets(data.bets);
         setTotalPages(data.totalPages);
         setMatchData({
@@ -195,6 +196,7 @@ export default function Page() {
             </TableHead>
             <TableHead className="text-white text-center">الحالة</TableHead>
             <TableHead className="text-white text-center">المبلغ</TableHead>
+            <TableHead className="text-white text-center">سعر فوركست</TableHead>
             <TableHead className="text-white text-center">الارباح</TableHead>
             <TableHead className="text-white text-center">خيارات</TableHead>
           </TableRow>
@@ -250,22 +252,19 @@ export default function Page() {
                       : "خسارة"}
                   </TableCell>
                   <TableCell className="text-center">{card.ammount}</TableCell>
+                  <TableCell className="text-center">{card.level.forcastPrice}</TableCell>
                   <TableCell className="text-center">
+
                     <input
-                      disabled={bet.status !== "won"}
-                      type="number"
-                      inputMode="decimal"
-                      value={card.cash || ""}
-                      onChange={(e) =>
-                        updateProfit(bet.id, card.id, e.target.value)
-                      }
+                      value={bet.status == 'won' ? Number(card.ammount) * (Number(card.level.forcastPrice) * 0.75) : ""}
+                      readOnly
                       placeholder={
                         bet.status !== "won"
                           ? " متاح فقط للرهان الرابح"
-                          : "1.00"
+                          : "{}"
                       }
-                      className="bg-white text-black rounded p-1 w-full"
-                    />
+                      className="bg-white text-black rounded p-1 w-full" />
+
                   </TableCell>
                   <TableCell className="text-center">
                     <button

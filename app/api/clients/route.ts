@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
             const betCount = await prisma.bets.count({
                 where: {
                     customerId: client.id,
+                    isForcast : false
                 },
             });
 

@@ -12,6 +12,7 @@ export interface levelData {
     status: matchStatus
     firstWinnerId: null | number
     secondWinnerId: null | number
+    forcastPrice : string
 }
 export interface client {
     id: number

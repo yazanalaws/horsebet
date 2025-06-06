@@ -21,6 +21,7 @@ interface Combs {
     pageSize: number;
     total: number;
   };
+  matchDiscount : number;
 }
 
 interface LevelData {
@@ -305,7 +306,7 @@ export default function Page() {
                       {row.rowStatus === "يربح" ? (
                         <>
                           {row.horsesPrice == 1
-                            ? Number(row.amount) * row.horsesPrice * 0.8
+                            ? Number(row.amount) * row.horsesPrice * combs.matchDiscount
                             : (Number(row.amount) * row.horsesPrice).toFixed(1)}
                         </>
                       ) : (

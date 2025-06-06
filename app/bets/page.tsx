@@ -98,6 +98,7 @@ export default function Page() {
                   {level.name}
                 </TableHead>
               ))}
+            <TableHead className="text-white text-center">المبلغ</TableHead>
             <TableHead className="text-white text-center">خيارات</TableHead>
           </TableRow>
         </TableHeader>
@@ -143,7 +144,7 @@ export default function Page() {
                     </TableCell>
                   );
                 })}
-
+                <TableCell className="text-center">{client.card[0].ammount}</TableCell>
                 <TableCell className="text-center">
                   <button
                     type="button"

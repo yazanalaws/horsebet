@@ -7,20 +7,32 @@ export async function POST(req: NextRequest) {
     const page = parseInt(body.page) || 1;
     const limit = parseInt(body.limit) || 10;
     const search = body.search || '';
-
+    const match = await prisma.matches.findFirst({
+      orderBy: {
+        id: 'desc'
+      }
+    })
     const skip = (page - 1) * limit;
-
+    if (!match) {
+      return NextResponse.json(
+        { success: false, message: 'حدث خطأ أثناء جلب البيانات.' },
+        { status: 500 }
+      );
+    }
     const whereCondition = search
       ? {
-          OR: [
-            { customer: { name: { contains: search} } },
-            { user: { name: { contains: search} } }
-          ],
-          and : {
-            isForcast : false
-          }
+        OR: [
+          { customer: { name: { contains: search } } },
+          { user: { name: { contains: search } } }
+        ],
+        and: {
+          isForcast: false,
+          matchId: match.id
+
+
         }
-      : {isForcast : false};
+      }
+      : { isForcast: false , matchId: match.id};
 
     const [bets, total] = await Promise.all([
       prisma.bets.findMany({
@@ -28,17 +40,17 @@ export async function POST(req: NextRequest) {
         include: {
           user: true,
           customer: true,
-          card :   true,
+          card: true,
           combo: true,
-          betHorses : {
+          betHorses: {
             include: {
               horse: true,
             }
           },
-          forcastCard : {
-            select : {
-              firstHorse : true,
-              secondHorse : true
+          forcastCard: {
+            select: {
+              firstHorse: true,
+              secondHorse: true
             }
           }
         },

@@ -10,6 +10,11 @@ export async function POST(req: NextRequest) {
             betId  : betId
         }
     })
+    await prisma.betHorses.deleteMany({
+        where  : {
+            betId : betId
+        }
+    })
     if(cards) {
         for(const card of cards ){
             await prisma.combo.deleteMany({
