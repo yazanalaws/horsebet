@@ -90,7 +90,8 @@ export async function POST(req: NextRequest) {
 
     if (levelWinners) {
       if (levelWinners.firstHorse === card.firstHorse && levelWinners.secondHorse === card.secondHorse) {
-        totalWinnings += Number(card.cash);
+        const levelPrice = Number(card.level.forcastPrice) - 0.25;
+        totalWinnings += Number(card.ammount) * levelPrice;
         status = 'won';
       } else {
         status = 'lost';

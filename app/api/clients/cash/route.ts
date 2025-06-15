@@ -74,8 +74,8 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    const levelPrice = Number(bet.level.forcastPrice) * Number(match.discount);
-    const winammount = Number(bet.ammount) * levelPrice;
+    const levelPrice = Number(bet.level.forcastPrice) - 0.25;
+    const winammount = Number(bet.ammount) * (levelPrice);
 
     if (bet.firstHorse == levelWinners?.firstHorse && bet.secondHorse == levelWinners.secondHorse) {
       forcastWins += winammount;
