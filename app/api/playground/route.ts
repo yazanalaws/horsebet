@@ -20,6 +20,9 @@ export async function POST(req: NextRequest) {
         },
         include: {
           horse: true
+        },
+        orderBy : {
+          order : 'asc'
         }
       });
       const winners = await prisma.winners.findFirst({

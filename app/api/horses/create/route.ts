@@ -5,6 +5,8 @@ interface Horse {
   name: string;
   price: number;
   level_id: number;
+  order : number
+
 }
 
 export async function POST(req: NextRequest) {
@@ -40,6 +42,7 @@ export async function POST(req: NextRequest) {
             level_id: horse.level_id,
             horseId: newHorse.id,
             madeBy: user.id,
+            order : horse.order
           },
         });
       })

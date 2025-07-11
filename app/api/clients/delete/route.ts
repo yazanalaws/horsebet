@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
+
 export async function POST(req: NextRequest) {
 
     const data = await req.json()
@@ -22,9 +23,22 @@ export async function POST(req: NextRequest) {
                 }
             }
         })
+        const forcast = await prisma.forcastCard.deleteMany({
+            where : {
+                bet : {
+                    customerId : Number(id)
+                }
+            }
+        })
         if(cards){
 
-
+        const betHorses = await prisma.betHorses.deleteMany({
+            where  : {
+                bet : {
+                     customerId : Number(id)
+                }
+            }
+        })
         const bets = await prisma.bets.deleteMany({
             where: {
                 customerId: Number(id)

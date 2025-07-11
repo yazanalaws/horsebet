@@ -12,6 +12,7 @@ interface Props {
 type Horse = {
   name: string;
   price: number;
+  order: number;
 };
 
 type LevelWithHorses = levels & {
@@ -52,7 +53,10 @@ export default function LevelsCreator({ matchId, setLevelsCreated }: Props) {
           level.id === levelId
             ? {
                 ...level,
-                horses: [...level.horses, { name: "", price: 0 }],
+                horses: [
+                  ...level.horses,
+                  { name: "", price: 1, order: level.horses.length + 1 },
+                ],
               }
             : level
         ) || null
@@ -63,7 +67,8 @@ export default function LevelsCreator({ matchId, setLevelsCreated }: Props) {
     levelId: number,
     index: number,
     field: "name" | "price",
-    value: string | number
+    value: string | number,
+    order: number
   ) => {
     setLevels(
       (prev) =>
@@ -76,6 +81,7 @@ export default function LevelsCreator({ matchId, setLevelsCreated }: Props) {
                     ? {
                         ...horse,
                         [field]: field === "price" ? Number(value) : value,
+                        order,
                       }
                     : horse
                 ),
@@ -92,7 +98,9 @@ export default function LevelsCreator({ matchId, setLevelsCreated }: Props) {
           level.id === levelId
             ? {
                 ...level,
-                horses: level.horses.filter((_, i) => i !== index),
+                horses: level.horses
+                  .filter((_, i) => i !== index)
+                  .map((horse, i) => ({ ...horse, order: i + 1 })),
               }
             : level
         ) || null
@@ -105,14 +113,14 @@ export default function LevelsCreator({ matchId, setLevelsCreated }: Props) {
     const payload = levels.flatMap((level) =>
       level.horses.map((horse) => ({
         matchId,
-        level_id: level.id, // add this
+        level_id: level.id,
         name: horse.name.trim(),
         price: parseFloat(horse.price.toString()),
+        order: horse.order,
       }))
     );
 
     const username = Cookies.get("username");
-    // Optionally validate
     const invalid = payload.find(
       (h) => !h.name || isNaN(h.price) || h.price < 0
     );
@@ -127,7 +135,7 @@ export default function LevelsCreator({ matchId, setLevelsCreated }: Props) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ horses: payload, username: username }),
+        body: JSON.stringify({ horses: payload, username }),
       });
 
       if (!res.ok) throw new Error("Failed to submit horses.");
@@ -138,6 +146,7 @@ export default function LevelsCreator({ matchId, setLevelsCreated }: Props) {
       alert("Error saving horses.");
     }
   };
+
   const updateLevel = async (levelId: number, forcastPrice: string) => {
     try {
       setLevels((prev) =>
@@ -146,7 +155,7 @@ export default function LevelsCreator({ matchId, setLevelsCreated }: Props) {
               lvl.id === levelId
                 ? {
                     ...lvl,
-                    forcastPrice: forcastPrice, // Ensure it's a number
+                    forcastPrice,
                   }
                 : lvl
             )
@@ -159,12 +168,9 @@ export default function LevelsCreator({ matchId, setLevelsCreated }: Props) {
         },
         body: JSON.stringify({ levelId, forcastPrice }),
       });
-
       if (!res.ok) throw new Error("Failed to update level.");
-      //alert("Level successfully updated.");
     } catch (err) {
       console.error(err);
-      //alert("Error updating level.");
     }
   };
 
@@ -184,13 +190,14 @@ export default function LevelsCreator({ matchId, setLevelsCreated }: Props) {
                 key={i}
                 className="flex flex-row-reverse gap-2 justify-between items-center mt-2"
               >
+                <input type="hidden" value={`${i + 1}`} />
                 <input
                   type="text"
                   className="w-[90px] outline-none border-none shadow text-right"
                   placeholder="اسم الحصان"
                   value={horse.name}
                   onChange={(e) =>
-                    updateHorse(level.id, i, "name", e.target.value)
+                    updateHorse(level.id, i, "name", e.target.value, i + 1)
                   }
                 />
                 <input
@@ -198,9 +205,9 @@ export default function LevelsCreator({ matchId, setLevelsCreated }: Props) {
                   inputMode="decimal"
                   className="w-[90px] outline-none border-none shadow text-right"
                   placeholder="السعر المبدئي"
-                  value={1.0}
+                  value={horse.price}
                   onChange={(e) =>
-                    updateHorse(level.id, i, "price", e.target.value)
+                    updateHorse(level.id, i, "price", e.target.value, i + 1)
                   }
                 />
                 <button
@@ -212,6 +219,7 @@ export default function LevelsCreator({ matchId, setLevelsCreated }: Props) {
                 </button>
               </div>
             ))}
+
             <div className="w-full flex justify-between items-center mt-2">
               <input
                 type="number"
@@ -233,7 +241,6 @@ export default function LevelsCreator({ matchId, setLevelsCreated }: Props) {
           </div>
         ))}
 
-      {/* Submit button */}
       <div className="w-full flex justify-center mt-4">
         <button
           type="button"

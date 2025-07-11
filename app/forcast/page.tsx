@@ -256,7 +256,7 @@ export default function Page() {
                   <TableCell className="text-center">
 
                     <input
-                      value={bet.status == 'won' ? Number(card.ammount) * (Number(card.level.forcastPrice) * 0.75) : ""}
+                      value={bet.status == 'won' ? Number(card.ammount) * (Number(card.level.forcastPrice) - 0.25) : ""}
                       readOnly
                       placeholder={
                         bet.status !== "won"

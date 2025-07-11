@@ -77,10 +77,10 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const firstPlacement = levelHorses.findIndex(h => h.horseId === card.firstHorse) + 1;
-    const secondPlacement = levelHorses.findIndex(h => h.horseId === card.secondHorse) + 1;
+    const firstPlacement = levelHorses.find(h => h.horseId === card.firstHorse);
+    const secondPlacement = levelHorses.find(h => h.horseId === card.secondHorse);
     totalCash += Number(card.ammount);
-    const placementString = `${firstPlacement}/${secondPlacement}`;
+    const placementString = `${firstPlacement?.order}/${secondPlacement?.order}`;
     let status = 'pending';
     const levelWinners = await prisma.winners.findFirst({
       where: {

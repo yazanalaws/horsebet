@@ -131,25 +131,31 @@ export async function POST(req: NextRequest) {
         if (isWinningCombo) {
           const betHorsesPrice = allHorsesPrice.reduce((total, price) => total * price, 1);
           let roundedPrice = betHorsesPrice;
-          const decimalPart = betHorsesPrice % 1;
-          const secondDecimal = Math.floor(decimalPart * 100) % 10;
-           if (betHorses.length > 2) {
-            roundedPrice = betHorsesPrice * Number(match.discount);
-          }
-          if (decimalPart > 0) {
-            const firstDecimal = Math.floor(decimalPart * 10) % 10;
-            if (secondDecimal > 5) {
-              roundedPrice = Math.floor(betHorsesPrice * 10) / 10 + 0.05;
-            } else {
-              roundedPrice = Math.floor(betHorsesPrice * 10) / 10;
-            }
-            // Ensure two decimals
-            roundedPrice = Number(roundedPrice.toFixed(2));
+          if (betHorses.length < 2) {
+            roundedPrice = betHorsesPrice - 0.25;
           } else {
-            roundedPrice = Number(betHorsesPrice.toFixed(2));
+            roundedPrice = betHorsesPrice
+            const decimalPart = roundedPrice % 1;
+            const secondDecimal = Math.floor(decimalPart * 100) % 10;
+            if (decimalPart > 0) {
+              const firstDecimal = Math.floor(decimalPart * 10) % 10;
+              if (secondDecimal > 5) {
+                roundedPrice = Math.floor(roundedPrice * 10) / 10 + 0.05;
+              } else {
+                roundedPrice = Math.floor(roundedPrice * 10) / 10;
+              }
+              // Ensure two decimals
+              roundedPrice = Number(roundedPrice.toFixed(2));
+            } else {
+              roundedPrice = Number(roundedPrice.toFixed(2));
+            }
+
           }
-          console.log(roundedPrice)
+
+          console.log('this is the rounded price for combo id ' + combo.id + ' : ' + roundedPrice + '\n')
+
           const win = Number(card.ammount) * roundedPrice;
+          console.log('this combo won : ' + win + '\n');
           winTotal += Number(win.toFixed(2));
         }
       }
@@ -166,7 +172,7 @@ export async function POST(req: NextRequest) {
     winTotal: winTotal + forcastWins,
     playWin: winTotal,
     matchName: match.name,
-    matchDiscount : Number(match?.discount),
+    matchDiscount: Number(match?.discount),
     forcastWins,
     forcastTotal
   });

@@ -289,7 +289,7 @@ export default function PlayView({ matchId }: Props) {
       const result = await res.json();
       if (result.success) {
         toast.success("تم إرسال الرهان بنجاح!");
-        setSelectedModes([]);
+        setSelectedModes([3]);
         setSelectedHorses({});
         setBetMode(false);
         setBetSelection([]);

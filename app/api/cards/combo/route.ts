@@ -4,7 +4,7 @@ import { matchStatus } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
-  const { page = 1, pageSize = 10, customerId  , winers = false} = await req.json();
+  const { page = 1, pageSize = 10, customerId, winers = false } = await req.json();
   const skip = (page - 1) * pageSize;
 
   const match = await prisma.matches.findFirst({ orderBy: { id: 'desc' } });
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
         bet: {
           matchId: match.id,
           customer: {
-           id :  customerId
+            id: customerId
           }
         }
       }
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
         bet: {
           matchId: match.id,
           customer: {
-            id : customerId
+            id: customerId
           }
         }
       }
@@ -86,11 +86,13 @@ export async function POST(req: NextRequest) {
     let allHorsesWon = true;
     let horsesPrice = 0
     let prices = [] as number[]
+    let horsesCount = 0;
     for (const level of levels) {
       const horseEntry = comboData.find((h: any) => h.levelId === level.id);
       const winners = await getLevelWiners(level.id);
 
       if (horseEntry && horseEntry.horseId > 0) {
+        horsesCount = horsesCount + 1;
         const horse = await prisma.horses.findUnique({
           where: { id: horseEntry.horseId },
           select: { name: true, initial_price: true, final_price: true },
@@ -108,6 +110,7 @@ export async function POST(req: NextRequest) {
 
         };
         row['amount'] = combo.card.ammount
+
       } else {
         row[`level_${level.id}`] = { name: '-', winner: true, status: level.status };
       }
@@ -116,38 +119,43 @@ export async function POST(req: NextRequest) {
 
     // Custom rounding: if second decimal digit > 5, round to .x5, else to .x0
     let roundedPrice = allhorsesPrice;
-    const decimalPart = allhorsesPrice % 1;
+    const decimalPart = roundedPrice % 1;
     const secondDecimal = Math.floor(decimalPart * 100) % 10;
-
-    if (decimalPart > 0) {
-      const firstDecimal = Math.floor(decimalPart * 10) % 10;
-      if (secondDecimal > 5) {
-      roundedPrice = Math.floor(allhorsesPrice * 10) / 10 + 0.05;
-      } else {
-      roundedPrice = Math.floor(allhorsesPrice * 10) / 10;
-      }
-      // Ensure two decimals
-      roundedPrice = Number(roundedPrice.toFixed(2));
+    if (horsesCount == 1) {
+      roundedPrice = allhorsesPrice - 0.25
     } else {
-      roundedPrice = Number(allhorsesPrice.toFixed(2));
+      if (decimalPart > 0) {
+        const firstDecimal = Math.floor(decimalPart * 10) % 10;
+        if (secondDecimal > 5) {
+          roundedPrice = Math.floor(roundedPrice * 10) / 10 + 0.05;
+        } else {
+          roundedPrice = Math.floor(roundedPrice * 10) / 10;
+        }
+        // Ensure two decimals
+        roundedPrice = Number(roundedPrice.toFixed(2));
+      } else {
+        roundedPrice = Number(roundedPrice.toFixed(2));
+      }
     }
+
+    //console.log(horsesCount)
 
     row['horsesPrice'] = roundedPrice;
 
     row.rowStatus = allLevelsEnded ? allHorsesWon ? 'يربح' : 'يخسر' : 'قيد المراجعة';
-    if(!winers){
-        tableRows.push(row);
-    }else{
-        if(row.rowStatus == 'يربح'){
-            tableRows.push(row)
-        }
+    if (!winers) {
+      tableRows.push(row);
+    } else {
+      if (row.rowStatus == 'يربح') {
+        tableRows.push(row)
+      }
     }
 
   }
 
   return NextResponse.json({
     success: true,
-    headers: ['id', 'الظريف', ...levels.map(l => l.name), 'الحالة' , 'سعر الخيول' , 'المبلغ'],
+    headers: ['id', 'الظريف', ...levels.map(l => l.name), 'الحالة', 'سعر الخيول', 'المبلغ'],
     data: tableRows,
     pagination: {
       page,

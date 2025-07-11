@@ -65,6 +65,7 @@ model levelHorses{
   level_id Int
   level levels @relation(fields: [level_id], references: [id])
   horse horses @relation(fields: [horseId] , references: [id])
+  order Int
   madeBy Int
   user users @relation(fields: [madeBy] , references: [id])
 

@@ -147,7 +147,7 @@ export async function POST(req: NextRequest) {
 
                         if (horsePrice > 0) {
                             if (bet.betHorses.length < 2) {
-                                horsePrice = Number(match?.discount);
+                                horsePrice =  horsePrice * 0.75;
                             }
                             const startsWith = isFirstNonZero && afterHasRealHorse;
                             const endsWith = afterSlice.length === 0 || afterAllZero;
